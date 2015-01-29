@@ -1,5 +1,6 @@
-package com.j256.ormlite.android.apptools;
+package com.j256.ormlite.android.loader;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import android.content.AsyncTaskLoader;
@@ -15,15 +16,8 @@ import com.j256.ormlite.dao.Dao;
  */
 public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> {
 
-	/**
-	 * A Dao which will be queried for the data.
-	 */
-	protected Dao<T, ID> dao;
+	protected final Dao<T, ID> dao;
 	private List<T> cachedResults;
-
-	public BaseOrmLiteLoader(Context context) {
-		super(context);
-	}
 
 	public BaseOrmLiteLoader(Context context, Dao<T, ID> dao) {
 		super(context);
@@ -32,9 +26,45 @@ public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> 
 
 	@Override
 	public void deliverResult(List<T> results) {
-		if (!isReset() && isStarted()) {
-			super.deliverResult(results);
+		if (isReset())
+		{
+			return;
 		}
+
+		List<T> oldData = cachedResults;
+		cachedResults = results;
+
+		if (isStarted())
+		{
+			super.deliverResult(cachedResults);
+		}
+
+		if (oldData != null)
+		{
+			onReleaseResources(oldData);
+		}
+	}
+
+	protected abstract List<T> runQuery()throws SQLException;
+
+	@Override
+	public final List<T> loadInBackground() {
+		try {
+			return runQuery();
+		} catch (SQLException e) {
+			return handleError(e);
+		}
+	}
+
+	/**
+	 * You should normally bomb if you're having a SQLException.  If you *need* to
+	 * do something else, override this method.
+	 *
+	 * @param e
+	 * @return
+	 */
+	protected List<T> handleError(SQLException e) {
+		throw new RuntimeException(e);
 	}
 
 	/**
@@ -47,7 +77,6 @@ public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> 
 	 */
 	@Override
 	protected void onStartLoading() {
-		// XXX: do we really return the cached results _before_ checking if the content has changed?
 		if (cachedResults != null) {
 			deliverResult(cachedResults);
 		}
@@ -72,12 +101,18 @@ public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> 
 		// ensure the loader is stopped
 		onStopLoading();
 		if (cachedResults != null) {
-			cachedResults.clear();
+			onReleaseResources(cachedResults);
 			cachedResults = null;
 		}
 	}
 
-	public void setDao(Dao<T, ID> dao) {
-		this.dao = dao;
+	/**
+	 * If you want to clear the list, or do something else on remove, do it here.
+	 * *NOTE* It is very unlikely that you'll want to override this.
+	 *
+	 * @param data
+	 */
+	protected void onReleaseResources(List<T> data)
+	{
 	}
 }
