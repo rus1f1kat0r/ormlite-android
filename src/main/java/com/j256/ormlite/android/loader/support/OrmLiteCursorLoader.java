@@ -1,18 +1,17 @@
-package com.j256.ormlite.android.apptools;
+package com.j256.ormlite.android.loader.support;
 
-import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
-
-import java.sql.SQLException;
-
-import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
-
+import android.support.v4.content.AsyncTaskLoader;
 import com.j256.ormlite.android.AndroidCompiledStatement;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.Dao.DaoObserver;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.DatabaseConnection;
+
+import java.sql.SQLException;
+
+import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
 
 /**
  * Cursor loader supported by later Android APIs that allows asynchronous content loading.
@@ -21,8 +20,8 @@ import com.j256.ormlite.support.DatabaseConnection;
  */
 public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements DaoObserver {
 
-	protected Dao<T, ?> dao;
-	protected PreparedQuery<T> query;
+	protected final Dao<T, ?> dao;
+	protected final PreparedQuery<T> query;
 	protected Cursor cursor;
 
 	public OrmLiteCursorLoader(Context context, Dao<T, ?> dao, PreparedQuery<T> query) {
@@ -108,13 +107,5 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 
 	public void onChange() {
 		onContentChanged();
-	}
-
-	public PreparedQuery<T> getQuery() {
-		return query;
-	}
-
-	public void setQuery(PreparedQuery<T> mQuery) {
-		this.query = mQuery;
 	}
 }

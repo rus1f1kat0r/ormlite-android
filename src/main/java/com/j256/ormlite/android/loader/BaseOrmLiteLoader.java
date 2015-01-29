@@ -16,11 +16,13 @@ import com.j256.ormlite.dao.Dao;
  */
 public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> {
 
-	protected final Dao<T, ID> dao;
+	private final Dao<T, ID> dao;
 	private List<T> cachedResults;
 
 	public BaseOrmLiteLoader(Context context, Dao<T, ID> dao) {
 		super(context);
+		if(dao == null)
+			throw new IllegalArgumentException("Dao cannot be null");
 		this.dao = dao;
 	}
 
@@ -45,12 +47,12 @@ public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> 
 		}
 	}
 
-	protected abstract List<T> runQuery()throws SQLException;
+	protected abstract List<T> runQuery(Dao<T, ID> dao)throws SQLException;
 
 	@Override
 	public final List<T> loadInBackground() {
 		try {
-			return runQuery();
+			return runQuery(dao);
 		} catch (SQLException e) {
 			return handleError(e);
 		}

@@ -19,7 +19,7 @@ public class OrmLiteQueryForAllLoader<T, ID> extends BaseOrmLiteLoader<T, ID> {
 	}
 
 	@Override
-	protected List<T> runQuery() throws SQLException {
+	protected List<T> runQuery(Dao<T, ID> dao) throws SQLException {
 		return dao.queryForAll();
 	}
 }

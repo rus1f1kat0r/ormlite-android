@@ -12,16 +12,18 @@ import java.util.List;
  * <code>CursorLoader</code>. Implements basic loading and synchronization logic.
  *
  * This is the support version.  This is basically copy/paste of the "standard" AsyncTaskLoader version.
- * 
+ *
  * @author EgorAnd
  */
 public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> {
 
-	protected final Dao<T, ID> dao;
+	private final Dao<T, ID> dao;
 	private List<T> cachedResults;
 
 	public BaseOrmLiteLoader(Context context, Dao<T, ID> dao) {
 		super(context);
+		if(dao == null)
+			throw new IllegalArgumentException("Dao cannot be null");
 		this.dao = dao;
 	}
 
@@ -46,12 +48,12 @@ public abstract class BaseOrmLiteLoader<T, ID> extends AsyncTaskLoader<List<T>> 
 		}
 	}
 
-	protected abstract List<T> runQuery()throws SQLException;
+	protected abstract List<T> runQuery(Dao<T, ID> dao)throws SQLException;
 
 	@Override
 	public final List<T> loadInBackground() {
 		try {
-			return runQuery();
+			return runQuery(dao);
 		} catch (SQLException e) {
 			return handleError(e);
 		}
