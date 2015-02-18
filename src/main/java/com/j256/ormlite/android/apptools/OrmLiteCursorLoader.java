@@ -1,20 +1,26 @@
-package com.j256.ormlite.android.loader.support;
+package com.j256.ormlite.android.apptools;
 
+import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
+
+import java.sql.SQLException;
+
+import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.database.Cursor;
-import android.support.v4.content.AsyncTaskLoader;
+
 import com.j256.ormlite.android.AndroidCompiledStatement;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.Dao.DaoObserver;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.DatabaseConnection;
 
-import java.sql.SQLException;
-
-import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
-
 /**
  * Cursor loader supported by later Android APIs that allows asynchronous content loading.
+ * 
+ * <p>
+ * <b>NOTE:</b> This should be the <i>same</i> as {@link com.j256.ormlite.android.apptools.support.OrmLiteCursorLoader}
+ * but this should import the normal version of the {@link AsyncTaskLoader}, not the support version.
+ * </p>
  * 
  * @author emmby
  */
@@ -28,7 +34,6 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 		super(context);
 		this.dao = dao;
 		this.query = query;
-		dao.registerObserver(this);
 	}
 
 	@Override
@@ -36,7 +41,8 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 		Cursor cursor;
 		try {
 			DatabaseConnection connection = dao.getConnectionSource().getReadOnlyConnection();
-			cursor = ((AndroidCompiledStatement) query.compile(connection, SELECT)).getCursor();
+			AndroidCompiledStatement statement = (AndroidCompiledStatement) query.compile(connection, SELECT);
+			cursor = statement.getCursor();
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -71,6 +77,9 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 
 	@Override
 	protected void onStartLoading() {
+		// start watching for dataset changes
+		dao.registerObserver(this);
+
 		if (cursor == null) {
 			forceLoad();
 		} else {
@@ -103,6 +112,9 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 			}
 			cursor = null;
 		}
+
+		// stop watching for changes
+		dao.unregisterObserver(this);
 	}
 
 	public void onChange() {
