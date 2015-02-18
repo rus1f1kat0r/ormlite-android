@@ -30,7 +30,8 @@ import com.j256.ormlite.logger.LoggerFactory;
  * 
  * Every time you use the helper, you should call {@link #getHelper(Context)} or {@link #getHelper(Context, Class)}.
  * When you are done with the helper you should call {@link #releaseHelper()}.
- * 
+ *
+ * @deprecated You can use this, but its not necessary, and potentially error prone: http://kpgalligan.tumblr.com/post/109546839958/single-database-connection
  * @author graywatson, kevingalligan
  */
 public class OpenHelperManager {

@@ -18,7 +18,8 @@ import com.j256.ormlite.support.ConnectionSource;
  * not, you'll need to provide your own helper instances which will need to implement a reference counting scheme. This
  * method will only be called if you use the database, and only called once for this activity's life-cycle. 'close' will
  * also be called once for each call to createInstance.
- * 
+ *
+ * @deprecated You can use this, but its not necessary, and potentially error prone: http://kpgalligan.tumblr.com/post/109546839958/single-database-connection
  * @author graywatson, kevingalligan
  */
 public abstract class OrmLiteBaseActivity<H extends OrmLiteSqliteOpenHelper> extends Activity {

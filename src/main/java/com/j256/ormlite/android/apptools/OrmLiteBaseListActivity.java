@@ -7,10 +7,11 @@ import android.os.Bundle;
 import com.j256.ormlite.support.ConnectionSource;
 
 /**
- * Base class to use for Tab activities in Android.
+ * Base class to use for List activities in Android.
  * 
  * For more information, see {@link OrmLiteBaseActivity}.
- * 
+ *
+ * @deprecated You can use this, but its not necessary, and potentially error prone: http://kpgalligan.tumblr.com/post/109546839958/single-database-connection
  * @author graywatson, kevingalligan
  */
 public abstract class OrmLiteBaseListActivity<H extends OrmLiteSqliteOpenHelper> extends ListActivity {
