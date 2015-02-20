@@ -8,6 +8,9 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.logger.Logger;
@@ -43,6 +46,12 @@ public class OpenHelperManager {
 	private static volatile OrmLiteSqliteOpenHelper helper = null;
 	private static boolean wasClosed = false;
 	private static int instanceCount = 0;
+	private static Handler closeHandler = new Handler(Looper.getMainLooper());
+	private static Runnable closeRunnable = new Runnable() {
+		public void run() {
+			checkCloseHelper();
+		}
+	};
 
 	/**
 	 * If you are _not_ using the {@link OrmLiteBaseActivity} type classes then you will need to call this in a static
@@ -135,6 +144,14 @@ public class OpenHelperManager {
 	public static synchronized void releaseHelper() {
 		instanceCount--;
 		logger.trace("releasing helper {}, instance count = {}", helper, instanceCount);
+		closeHandler.removeCallbacks(closeRunnable);
+		closeHandler.post(closeRunnable);
+	}
+
+	/**
+	 * Scheduling the check and close on the main thread should allow for rotations without closing the db connection.
+	 */
+	private synchronized static void checkCloseHelper() {
 		if (instanceCount <= 0) {
 			if (helper != null) {
 				logger.trace("zero instances, closing helper {}", helper);
