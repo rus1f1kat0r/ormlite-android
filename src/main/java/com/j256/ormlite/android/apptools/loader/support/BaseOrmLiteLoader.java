@@ -1,4 +1,4 @@
-package com.j256.ormlite.android.apptools.support;
+package com.j256.ormlite.android.apptools.loader.support;
 
 import android.content.Context;
 import android.support.v4.content.AsyncTaskLoader;

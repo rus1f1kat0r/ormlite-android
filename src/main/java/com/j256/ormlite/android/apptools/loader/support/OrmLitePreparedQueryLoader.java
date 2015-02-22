@@ -1,4 +1,4 @@
-package com.j256.ormlite.android.apptools.support;
+package com.j256.ormlite.android.apptools.loader.support;
 
 import android.content.Context;
 import com.j256.ormlite.dao.Dao;

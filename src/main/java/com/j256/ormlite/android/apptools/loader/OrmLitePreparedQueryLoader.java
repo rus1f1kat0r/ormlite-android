@@ -1,4 +1,4 @@
-package com.j256.ormlite.android.apptools;
+package com.j256.ormlite.android.apptools.loader;
 
 import java.sql.SQLException;
 import java.util.List;

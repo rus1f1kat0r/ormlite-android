@@ -23,6 +23,8 @@ public abstract class OrmLiteCursorAdapter<T, ViewType extends View> extends Cur
 		super(context, null, false);
 	}
 
+
+
 	/**
 	 * Bind the view to a particular item.
 	 */

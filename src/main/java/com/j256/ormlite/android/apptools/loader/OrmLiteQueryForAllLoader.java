@@ -1,10 +1,11 @@
-package com.j256.ormlite.android.apptools.support;
-
-import android.content.Context;
-import com.j256.ormlite.dao.Dao;
+package com.j256.ormlite.android.apptools.loader;
 
 import java.sql.SQLException;
 import java.util.List;
+
+import android.content.Context;
+
+import com.j256.ormlite.dao.Dao;
 
 /**
  * A <code>Loader</code> implementation that queries specified {@link com.j256.ormlite.dao.Dao} for all data, using the

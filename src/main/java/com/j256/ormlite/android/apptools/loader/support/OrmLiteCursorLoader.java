@@ -1,4 +1,4 @@
-package com.j256.ormlite.android.apptools.support;
+package com.j256.ormlite.android.apptools.loader.support;
 
 import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
 
@@ -19,7 +19,7 @@ import com.j256.ormlite.support.DatabaseConnection;
  * Cursor loader supported by later Android APIs that allows asynchronous content loading.
  * <p/>
  * <p>
- * <b>NOTE:</b> This should be the <i>same</i> as {@link com.j256.ormlite.android.apptools.OrmLiteCursorLoader} but this
+ * <b>NOTE:</b> This should be the <i>same</i> as {@link com.j256.ormlite.android.apptools.loader.OrmLiteCursorLoader} but this
  * should import the support library version of the {@link AsyncTaskLoader}.
  * </p>
  *

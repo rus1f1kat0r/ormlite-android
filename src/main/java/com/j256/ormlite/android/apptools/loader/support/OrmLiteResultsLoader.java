@@ -1,48 +1,47 @@
-package com.j256.ormlite.android.apptools;
+package com.j256.ormlite.android.apptools.loader.support;
 
-import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
-
-import java.sql.SQLException;
-
-import android.content.AsyncTaskLoader;
 import android.content.Context;
-import android.database.Cursor;
-
+import android.support.v4.content.AsyncTaskLoader;
 import com.j256.ormlite.android.AndroidCompiledStatement;
+import com.j256.ormlite.android.AndroidDatabaseResults;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.Dao.DaoObserver;
 import com.j256.ormlite.stmt.PreparedQuery;
 import com.j256.ormlite.support.DatabaseConnection;
 
+import java.sql.SQLException;
+
+import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
+
 /**
  * Cursor loader supported by later Android APIs that allows asynchronous content loading.
  * 
  * <p>
- * <b>NOTE:</b> This should be the <i>same</i> as {@link com.j256.ormlite.android.apptools.support.OrmLiteCursorLoader}
- * but this should import the normal version of the {@link AsyncTaskLoader}, not the support version.
+ * <b>NOTE:</b> This should be the <i>same</i> as {@link com.j256.ormlite.android.apptools.loader.support.OrmLiteResultsLoader}
+ * but this should import the normal version of the {@link android.content.AsyncTaskLoader}, not the support version.
  * </p>
- * 
+ *
  * @author emmby
  */
-public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements DaoObserver {
+public class OrmLiteResultsLoader<T> extends AsyncTaskLoader<AndroidDatabaseResults> implements DaoObserver {
 
 	protected final Dao<T, ?> dao;
 	protected final PreparedQuery<T> query;
-	protected Cursor cursor;
+	protected AndroidDatabaseResults databaseResults;
 
-	public OrmLiteCursorLoader(Context context, Dao<T, ?> dao, PreparedQuery<T> query) {
+	public OrmLiteResultsLoader(Context context, Dao<T, ?> dao, PreparedQuery<T> query) {
 		super(context);
 		this.dao = dao;
 		this.query = query;
 	}
 
 	@Override
-	public Cursor loadInBackground() {
-		Cursor cursor;
+	public AndroidDatabaseResults loadInBackground() {
+		AndroidDatabaseResults cursor;
 		try {
 			DatabaseConnection connection = dao.getConnectionSource().getReadOnlyConnection();
 			AndroidCompiledStatement statement = (AndroidCompiledStatement) query.compile(connection, SELECT);
-			cursor = statement.getCursor();
+			cursor = new AndroidDatabaseResults(statement.getCursor(), null);
 		} catch (SQLException e) {
 			throw new RuntimeException(e);
 		}
@@ -53,7 +52,7 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 	}
 
 	@Override
-	public void deliverResult(Cursor newCursor) {
+	public void deliverResult(AndroidDatabaseResults newCursor) {
 		if (isReset()) {
 			// an async query came in while the loader is stopped
 			if (newCursor != null) {
@@ -62,8 +61,8 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 			return;
 		}
 
-		Cursor oldCursor = cursor;
-		cursor = newCursor;
+		AndroidDatabaseResults oldCursor = databaseResults;
+		databaseResults = newCursor;
 
 		if (isStarted()) {
 			super.deliverResult(newCursor);
@@ -80,10 +79,10 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 		// start watching for dataset changes
 		dao.registerObserver(this);
 
-		if (cursor == null) {
+		if (databaseResults == null) {
 			forceLoad();
 		} else {
-			deliverResult(cursor);
+			deliverResult(databaseResults);
 			if (takeContentChanged()) {
 				forceLoad();
 			}
@@ -96,7 +95,7 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 	}
 
 	@Override
-	public void onCanceled(Cursor cursor) {
+	public void onCanceled(AndroidDatabaseResults cursor) {
 		if (cursor != null && !cursor.isClosed()) {
 			cursor.close();
 		}
@@ -106,11 +105,11 @@ public class OrmLiteCursorLoader<T> extends AsyncTaskLoader<Cursor> implements D
 	protected void onReset() {
 		super.onReset();
 		onStopLoading();
-		if (cursor != null) {
-			if (!cursor.isClosed()) {
-				cursor.close();
+		if (databaseResults != null) {
+			if (!databaseResults.isClosed()) {
+				databaseResults.close();
 			}
-			cursor = null;
+			databaseResults = null;
 		}
 
 		// stop watching for changes

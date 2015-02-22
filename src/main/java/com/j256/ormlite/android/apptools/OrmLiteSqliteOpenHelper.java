@@ -1,11 +1,6 @@
 package com.j256.ormlite.android.apptools;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.sql.SQLException;
 
 import android.content.Context;
@@ -50,8 +45,53 @@ public abstract class OrmLiteSqliteOpenHelper extends SQLiteOpenHelper {
 	 *            Version of the database we are opening. This causes {@link #onUpgrade(SQLiteDatabase, int, int)} to be
 	 *            called if the stored database is a different version.
 	 */
-	public OrmLiteSqliteOpenHelper(Context context, String databaseName, CursorFactory factory, int databaseVersion) {
+	public OrmLiteSqliteOpenHelper(Context context, String databaseName, CursorFactory factory, int databaseVersion)
+	{
 		super(context, databaseName, factory, databaseVersion);
+		logger.trace("{}: constructed connectionSource {}", this, connectionSource);
+	}
+
+	/**
+	 * @param context
+	 *            Associated content from the application. This is needed to locate the database.
+	 * @param databaseName
+	 *            Name of the database we are opening.
+	 * @param factory
+	 *            Cursor factory or null if none.
+	 * @param databaseVersion
+	 *            Version of the database we are opening. This causes {@link #onUpgrade(SQLiteDatabase, int, int)} to be
+	 *            called if the stored database is a different version.
+	 * @param classes
+	 * 		      Classes to add to auto-generated dao config file.
+	 */
+	public OrmLiteSqliteOpenHelper(Context context, String databaseName, CursorFactory factory, int databaseVersion, Class... classes)
+	{
+		super(context, databaseName, factory, databaseVersion);
+
+		File dbFile = context.getDatabasePath(databaseName);
+		File dbDir = dbFile.getParentFile();
+		File configFile = new File(dbDir, dbFile.getName() + "." + databaseVersion + ".ormlite.config");
+
+		try
+		{
+			if (!configFile.exists())
+			{
+				dbDir.mkdirs();
+				File tempFile = new File(dbDir, "temp_" + System.currentTimeMillis());
+				OrmLiteConfigUtil.writeConfigFile(tempFile, classes);
+				tempFile.renameTo(configFile);
+			}
+
+			initConfigStream(new FileInputStream(configFile));
+
+		} catch (SQLException e)
+		{
+			throw new RuntimeException(e);
+		} catch (IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+
 		logger.trace("{}: constructed connectionSource {}", this, connectionSource);
 	}
 
@@ -115,6 +155,11 @@ public abstract class OrmLiteSqliteOpenHelper extends SQLiteOpenHelper {
 	public OrmLiteSqliteOpenHelper(Context context, String databaseName, CursorFactory factory, int databaseVersion,
 			InputStream stream) {
 		super(context, databaseName, factory, databaseVersion);
+		initConfigStream(stream);
+	}
+
+	private void initConfigStream(InputStream stream)
+	{
 		if (stream == null) {
 			return;
 		}

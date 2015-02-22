@@ -205,6 +205,11 @@ public class AndroidDatabaseResults implements DatabaseResults {
 		cursor.close();
 	}
 
+	public boolean isClosed()
+	{
+		return cursor.isClosed();
+	}
+
 	public void closeQuietly() {
 		close();
 	}
