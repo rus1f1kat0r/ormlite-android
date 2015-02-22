@@ -6,6 +6,7 @@ implementations and relatively constrained environments.
 ## More Background Info
 
 [http://ormlite.com/](http://ormlite.com/)
+
 [http://en.wikipedia.org/wiki/Object-relational_mapping](ORM on Wiki)
 
 ## Android Specific Features
@@ -52,7 +53,7 @@ Create some data with the Dao instance.  Run queries.  You can directly query da
 ORM's have a dubious reputation with regards to performance.  In some cases this may be due to bad implementions, but its
   often due to the user not understanding what will produce good and bad outcomes.  As with any tool, you need to understand
   what its doing and how to use it.  Using an ORM doesn't mean you don't need to understand SQL and databases.  It just makes
-  using them easier and more productive.  For a more detailed discussion on OrmLite/Android performance, see here.
+  using them easier and more productive.  For a more detailed discussion on OrmLite/Android performance, [PERFORMANCE.md](see here).
 
 ### Overview
 
