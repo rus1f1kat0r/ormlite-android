@@ -12,6 +12,8 @@ import com.j256.ormlite.stmt.PreparedQuery;
 
 /**
  * Cursor adapter base class.
+ *
+ * @deprecated OrmLiteResultsAdapter is a little more in line with OrmLite data structures.
  * 
  * @author emmby
  */

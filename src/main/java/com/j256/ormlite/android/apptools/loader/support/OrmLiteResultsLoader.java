@@ -14,14 +14,11 @@ import java.sql.SQLException;
 import static com.j256.ormlite.stmt.StatementBuilder.StatementType.SELECT;
 
 /**
- * Cursor loader supported by later Android APIs that allows asynchronous content loading.
- * 
- * <p>
- * <b>NOTE:</b> This should be the <i>same</i> as {@link com.j256.ormlite.android.apptools.loader.support.OrmLiteResultsLoader}
- * but this should import the normal version of the {@link android.content.AsyncTaskLoader}, not the support version.
- * </p>
+ * Similar to CursorLoader, but aligns better with how OrmLite handles data.  Modded from emmby's model based on CursorAdapter.
  *
- * @author emmby
+ * This is the support version.
+ *
+ * @author kgalligan, emmby
  */
 public class OrmLiteResultsLoader<T> extends AsyncTaskLoader<AndroidDatabaseResults> implements DaoObserver {
 
